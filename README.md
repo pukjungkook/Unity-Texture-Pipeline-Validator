@@ -15,6 +15,8 @@ This tool was created as a Technical Art pipeline automation example focused on 
 - Compression validation
 - Context menu integration
 - In-editor validation results window
+- Auto-fix texture import settings
+- Batch texture optimization support
 
 ---
 
@@ -67,6 +69,14 @@ The repository includes simple example textures for testing validation workflows
 - Useful for testing pipeline validation workflows
 
 ---
+## Auto-Fix Example
+
+The tool can automatically apply recommended mobile texture settings to selected textures or folders.
+
+Current auto-fix actions include:
+
+- Set max texture size to 1024
+- Enable texture compression
 
 # How To Use
 

@@ -13,6 +13,60 @@ public class TextureValidatorWindow : EditorWindow
     {
         validationResults.Clear();
 
+        List<string> texturePaths = GetSelectedTexturePaths();
+
+        if (texturePaths.Count == 0)
+        {
+            validationResults.Add("No textures found in selected assets or folders.");
+        }
+
+        foreach (string texturePath in texturePaths)
+        {
+            ValidateTexture(texturePath);
+        }
+
+        ShowWindow();
+    }
+
+    [MenuItem("Assets/Pipeline Tools/Auto-Fix Texture Settings")]
+    private static void AutoFixTextureSettings()
+    {
+        List<string> texturePaths = GetSelectedTexturePaths();
+
+        if (texturePaths.Count == 0)
+        {
+            validationResults.Clear();
+            validationResults.Add("No textures found in selected assets or folders.");
+            ShowWindow();
+            return;
+        }
+
+        foreach (string texturePath in texturePaths)
+        {
+            TextureImporter importer = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+
+            if (importer == null)
+            {
+                continue;
+            }
+
+            importer.maxTextureSize = MaxMobileTextureSize;
+            importer.textureCompression = TextureImporterCompression.Compressed;
+
+            EditorUtility.SetDirty(importer);
+            importer.SaveAndReimport();
+        }
+
+        validationResults.Clear();
+        validationResults.Add($"✅ Auto-fixed {texturePaths.Count} texture(s).");
+        validationResults.Add($"Applied max size: {MaxMobileTextureSize}");
+        validationResults.Add("Applied compression: Compressed");
+
+        ShowWindow();
+    }
+
+    private static List<string> GetSelectedTexturePaths()
+    {
         string[] selectedPaths = Selection.assetGUIDs.Length > 0
             ? System.Array.ConvertAll(Selection.assetGUIDs, AssetDatabase.GUIDToAssetPath)
             : new string[0];
@@ -41,17 +95,7 @@ public class TextureValidatorWindow : EditorWindow
             }
         }
 
-        if (texturePaths.Count == 0)
-        {
-            validationResults.Add("No textures found in selection.");
-        }
-
-        foreach (string texturePath in texturePaths)
-        {
-            ValidateTexture(texturePath);
-        }
-
-        ShowWindow();
+        return texturePaths;
     }
 
     private static void ValidateTexture(string assetPath)
@@ -100,7 +144,7 @@ public class TextureValidatorWindow : EditorWindow
 
         foreach (string result in validationResults)
         {
-            GUILayout.Label(result);
+            GUILayout.Label(result, EditorStyles.wordWrappedLabel);
         }
 
         GUILayout.EndScrollView();
